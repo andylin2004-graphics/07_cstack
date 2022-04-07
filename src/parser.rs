@@ -249,6 +249,9 @@ pub fn parse_file(
                 polygons.add_box(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
+                polygons.multiply_matrixes(&currentCStackTop);
+
+                *polygons = Matrix::new(0,0);
             }
             "sphere" => {
                 i += 1;
@@ -258,6 +261,9 @@ pub fn parse_file(
                 }
 
                 polygons.add_sphere(params[0], params[1], params[2], params[3], 20);
+                polygons.multiply_matrixes(&currentCStackTop);
+
+                *polygons = Matrix::new(0,0);
             }
             "torus" => {
                 i += 1;
@@ -267,6 +273,9 @@ pub fn parse_file(
                 }
 
                 polygons.add_torus(params[0], params[1], params[2], params[3], params[4], 20);
+                polygons.multiply_matrixes(&currentCStackTop);
+
+                *polygons = Matrix::new(0,0);
             }
             "push" =>{
                 cstack.push(currentCStackTop);
