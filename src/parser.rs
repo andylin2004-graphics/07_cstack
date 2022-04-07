@@ -96,6 +96,10 @@ pub fn parse_file(
                 points.add_edge(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
+                points.multiply_matrixes(&currentCStackTop);
+                screen.draw_lines(&points, color);
+
+                *points = Matrix::new(0,0);
             }
             // "ident" => {
             //     transform.identity();
@@ -193,6 +197,10 @@ pub fn parse_file(
                 }
 
                 points.add_circle(params[0], params[1], params[2], params[3], 100);
+                points.multiply_matrixes(&currentCStackTop);
+                screen.draw_lines(&points, color);
+
+                *points = Matrix::new(0,0);
             }
             "hermite" => {
                 i += 1;
@@ -213,6 +221,10 @@ pub fn parse_file(
                     100,
                     &CurveType::Hermite,
                 );
+                points.multiply_matrixes(&currentCStackTop);
+                screen.draw_lines(&points, color);
+
+                *points = Matrix::new(0,0);
             }
             "bezier" => {
                 i += 1;
@@ -233,6 +245,10 @@ pub fn parse_file(
                     100,
                     &CurveType::Bezier,
                 );
+                points.multiply_matrixes(&currentCStackTop);
+                screen.draw_lines(&points, color);
+
+                *points = Matrix::new(0,0);
             }
             _ if doc_lines[i].starts_with('#') => {}
             // "clear" => {
