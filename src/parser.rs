@@ -72,7 +72,6 @@ pub fn parse_file(
     cstack: &mut Vec<Matrix>,
     points: &mut Matrix,
     polygons: &mut Matrix,
-    currentCStackTop: &mut Matrix,
     screen: &mut Image,
     color: Color,
 ) -> io::Result<()> {
@@ -80,6 +79,7 @@ pub fn parse_file(
     let reader = BufReader::new(file);
     let mut doc_lines = vec![String::new(); 0];
     let mut i = 0;
+    let mut current_cstack_top = Matrix::identity();
 
     for line in reader.lines() {
         doc_lines.push(line?);
@@ -96,7 +96,7 @@ pub fn parse_file(
                 points.add_edge(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
-                points.multiply_matrixes(&currentCStackTop);
+                points.multiply_matrixes(&current_cstack_top);
                 screen.draw_lines(&points, color);
 
                 *points = Matrix::new(0,0);
@@ -111,7 +111,7 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                currentCStackTop.multiply_matrixes(&Matrix::make_scale(params[0], params[1], params[2]));
+                current_cstack_top.multiply_matrixes(&Matrix::make_scale(params[0], params[1], params[2]));
             }
             "translate" | "move" => {
                 i += 1;
@@ -120,7 +120,7 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                currentCStackTop
+                current_cstack_top
                     .multiply_matrixes(&Matrix::make_translate(params[0], params[1], params[2]));
             }
             "rotate" => {
@@ -132,15 +132,15 @@ pub fn parse_file(
 
                 match params[0] {
                     "x" => {
-                        currentCStackTop
+                        current_cstack_top
                             .multiply_matrixes(&Matrix::make_rot_x(params[1].parse().unwrap()));
                     }
                     "y" => {
-                        currentCStackTop
+                        current_cstack_top
                             .multiply_matrixes(&Matrix::make_rot_y(params[1].parse().unwrap()));
                     }
                     "z" => {
-                        currentCStackTop
+                        current_cstack_top
                             .multiply_matrixes(&Matrix::make_rot_z(params[1].parse().unwrap()));
                     }
                     _ => {
@@ -197,7 +197,7 @@ pub fn parse_file(
                 }
 
                 points.add_circle(params[0], params[1], params[2], params[3], 100);
-                points.multiply_matrixes(&currentCStackTop);
+                points.multiply_matrixes(&current_cstack_top);
                 screen.draw_lines(&points, color);
 
                 *points = Matrix::new(0,0);
@@ -221,7 +221,7 @@ pub fn parse_file(
                     100,
                     &CurveType::Hermite,
                 );
-                points.multiply_matrixes(&currentCStackTop);
+                points.multiply_matrixes(&current_cstack_top);
                 screen.draw_lines(&points, color);
 
                 *points = Matrix::new(0,0);
@@ -245,7 +245,7 @@ pub fn parse_file(
                     100,
                     &CurveType::Bezier,
                 );
-                points.multiply_matrixes(&currentCStackTop);
+                points.multiply_matrixes(&current_cstack_top);
                 screen.draw_lines(&points, color);
 
                 *points = Matrix::new(0,0);
@@ -265,7 +265,7 @@ pub fn parse_file(
                 polygons.add_box(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
-                polygons.multiply_matrixes(&currentCStackTop);
+                polygons.multiply_matrixes(&current_cstack_top);
                 screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
@@ -278,7 +278,7 @@ pub fn parse_file(
                 }
 
                 polygons.add_sphere(params[0], params[1], params[2], params[3], 20);
-                polygons.multiply_matrixes(&currentCStackTop);
+                polygons.multiply_matrixes(&current_cstack_top);
                 screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
@@ -291,13 +291,13 @@ pub fn parse_file(
                 }
 
                 polygons.add_torus(params[0], params[1], params[2], params[3], params[4], 20);
-                polygons.multiply_matrixes(&currentCStackTop);
+                polygons.multiply_matrixes(&current_cstack_top);
                 screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
             }
             "push" =>{
-                cstack.push(currentCStackTop.clone());
+                cstack.push(current_cstack_top.clone());
             }
             "pop" =>{
                 cstack.pop();
