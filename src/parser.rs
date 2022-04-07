@@ -7,70 +7,69 @@ use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
 use std::process::Command;
 
-/// Goes through the file named filename and performs all of the actions listed in that file.
+///Goes through the file named filename and performs all of the actions listed in that file.
+///The file follows the following format:
+///     Every command is a single character that takes up a line
+///     Any command that requires arguments must have those arguments in the second line.
+///     The commands are as follows:
 ///
-/// The file follows the following format:
+///     push: push a copy of the curent top of the coordinate system stack to the stack
 ///
-// Every command is a single character that takes up a line
-
-/// Any command that requires arguments must have those arguments in the second line.
-
-/// The commands are as follows:
-
-/// line: add a line to the edge matrix -
-/// takes 6 arguemnts (x0, y0, z0, x1, y1, z1)
-
-/// ident: set the transform matrix to the identity matrix -
-
-/// scale: create a scale matrix,
-/// then multiply the transform matrix by the scale matrix -
-/// takes 3 arguments (sx, sy, sz)
-
-/// translate: create a translation matrix,
-/// then multiply the transform matrix by the translation matrix -
-/// takes 3 arguments (tx, ty, tz)
-
-/// rotate: create a rotation matrix,
-/// then multiply the transform matrix by the rotation matrix -
-/// takes 2 arguments (axis, theta) axis should be x y or z
-
-/// apply: apply the current transformation matrix to the edge matrix
-
-/// display: clear the screen, then
-/// draw the lines of the edge matrix to the screen
-/// display the screen
-
-/// save: clear the screen, then
-/// draw the lines of the edge matrix to the screen
-/// save the screen to a file -
-/// takes 1 argument (file name)
-
-/// quit: end parsing
+///     pop: remove the current top of the coordinate system stack
 ///
-/// circle: add a circle to the edge matrix -
-/// takes 4 arguments (cx, cy, cz, r)
+///     All the shape commands work as follows:
+///        1) Add the shape to a temporary matrix
+///        2) Multiply that matrix by the current top of the coordinate system stack
+///        3) Draw the shape to the screen
+///        4) Clear the temporary matrix
 ///
-/// hermite: add a hermite curve to the edge matrix -
-///          takes 8 arguments (x0, y0, x1, y1, rx0, ry0, rx1, ry1)
+///         sphere: add a sphere to the POLYGON matrix -
+///                 takes 4 arguemnts (cx, cy, cz, r)
+///         torus: add a torus to the POLYGON matrix -
+///                takes 5 arguemnts (cx, cy, cz, r1, r2)
+///         box: add a rectangular prism to the POLYGON matrix -
+///              takes 6 arguemnts (x, y, z, width, height, depth)
+///         clear: clears the edge and POLYGON matrices
 ///
-/// bezier: add a bezier curve to the edge matrix -
-///         takes 8 arguments (x0, y0, x1, y1, x2, y2, x3, y3)
+///         circle: add a circle to the edge matrix -
+///                 takes 4 arguments (cx, cy, cz, r)
+///         hermite: add a hermite curve to the edge matrix -
+///                  takes 8 arguments (x0, y0, x1, y1, rx0, ry0, rx1, ry1)
+///         bezier: add a bezier curve to the edge matrix -
+///                 takes 8 arguments (x0, y0, x1, y1, x2, y2, x3, y3)
+///         line: add a line to the edge matrix -
+///               takes 6 arguemnts (x0, y0, z0, x1, y1, z1)
+///         ident: set the transform matrix to the identity matrix -
+///         scale: create a scale matrix,
+///                then multiply the transform matrix by the scale matrix -
+///                takes 3 arguments (sx, sy, sz)
+///         move: create a translation matrix,
+///               then multiply the transform matrix by the translation matrix -
+///               takes 3 arguments (tx, ty, tz)
+///         rotate: create a rotation matrix,
+///                 then multiply the transform matrix by the rotation matrix -
+///                 takes 2 arguments (axis, theta) axis should be x y or z
+///         apply: apply the current transformation matrix to the edge and
+///                POLYGON matrices
+///         display: clear the screen, then
+///                  draw the lines of the edge and POLYGON matrices to the screen
+///                  display the screen
+///         save: clear the screen, then
+///               draw the lines of the edge and POLYGON matrices to the screen
+///               save the screen to a file -
+///               takes 1 argument (file name)
+///         quit: end parsing
 ///
-/// clear: clears the edge matrix of all points
+///See the file script for an example of the file format
 ///
-/// box: adds a rectangular prism (box) to the edge matrix - takes 6 parameters (x, y, z, width, height, depth)
-///
-/// sphere: adds a sphere to the edge matrix - takes 4 parameters (x, y, z, radius)
-///
-/// torus: adds a torus to the edge matrix - takes 5 parameters (x, y, z, radius1, radius2)
-///
-/// radius1 is the radius of the circle that makes up the torus
-///
-/// radius2 is the full radius of the torus (the translation factor). You can think of this as the distance from the center of the torus to the center of any circular slice of the torus.
-///
-/// See the file script for an example of the file format
+///IMPORTANT MATH NOTE:
+///the trig functions int math.h use radian measure, but us normal
+///humans use degrees, so the file will contain degrees for rotations,
+///be sure to convert those degrees to radians (M_PI is the constant
+///for PI)
 pub fn parse_file(
     fname: &str,
+    cstack: &mut Vec<Matrix>,
     points: &mut Matrix,
     polygons: &mut Matrix,
     transform: &mut Matrix,
@@ -98,9 +97,9 @@ pub fn parse_file(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
             }
-            "ident" => {
-                transform.identity();
-            }
+            // "ident" => {
+            //     transform.identity();
+            // }
             "scale" => {
                 i += 1;
                 let mut params = vec![0.0; 0];
@@ -148,14 +147,14 @@ pub fn parse_file(
                     }
                 }
             }
-            "apply" => {
-                if points.matrix_array.len() > 0 {
-                    points.multiply_matrixes(&transform);
-                }
-                if polygons.matrix_array.len() > 0 {
-                    polygons.multiply_matrixes(&transform);
-                }
-            }
+            // "apply" => {
+            //     if points.matrix_array.len() > 0 {
+            //         points.multiply_matrixes(&transform);
+            //     }
+            //     if polygons.matrix_array.len() > 0 {
+            //         polygons.multiply_matrixes(&transform);
+            //     }
+            // }
             "display" => {
                 screen.clear();
                 if points.matrix_array.len() > 0 {
@@ -236,10 +235,10 @@ pub fn parse_file(
                 );
             }
             _ if doc_lines[i].starts_with('#') => {}
-            "clear" => {
-                *points = Matrix::new(0, 0);
-                *polygons = Matrix::new(0, 0);
-            }
+            // "clear" => {
+            //     *points = Matrix::new(0, 0);
+            //     *polygons = Matrix::new(0, 0);
+            // }
             "box" => {
                 i += 1;
                 let mut params = vec![0.0; 0];
