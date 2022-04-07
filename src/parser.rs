@@ -271,6 +271,9 @@ pub fn parse_file(
             "push" =>{
                 cstack.push(currentCStackTop);
             }
+            "pop" =>{
+                cstack.pop();
+            }
             _ => {
                 panic!("Invalid command {} at line {}.", doc_lines[i], i + 1);
             }
