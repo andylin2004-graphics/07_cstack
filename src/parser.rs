@@ -156,13 +156,13 @@ pub fn parse_file(
             //     }
             // }
             "display" => {
-                screen.clear();
-                if points.matrix_array.len() > 0 {
-                    screen.draw_lines(&points, color);
-                }
-                if polygons.matrix_array.len() > 0 {
-                    screen.draw_polygons(&polygons, color);
-                }
+                // screen.clear();
+                // if points.matrix_array.len() > 0 {
+                //     screen.draw_lines(&points, color);
+                // }
+                // if polygons.matrix_array.len() > 0 {
+                //     screen.draw_polygons(&polygons, color);
+                // }
                 screen.display();
             }
             "save" => {
@@ -250,6 +250,7 @@ pub fn parse_file(
                     params[0], params[1], params[2], params[3], params[4], params[5],
                 );
                 polygons.multiply_matrixes(&currentCStackTop);
+                screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
             }
@@ -262,6 +263,7 @@ pub fn parse_file(
 
                 polygons.add_sphere(params[0], params[1], params[2], params[3], 20);
                 polygons.multiply_matrixes(&currentCStackTop);
+                screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
             }
@@ -274,6 +276,7 @@ pub fn parse_file(
 
                 polygons.add_torus(params[0], params[1], params[2], params[3], params[4], 20);
                 polygons.multiply_matrixes(&currentCStackTop);
+                screen.draw_polygons(&polygons, color);
 
                 *polygons = Matrix::new(0,0);
             }
