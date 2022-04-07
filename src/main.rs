@@ -16,22 +16,26 @@ fn main() {
     let color = Color::new_color(0, 255, 0);
     let mut edges = Matrix::new(0, 0);
     let mut polygons = Matrix::new(0, 0);
-    let mut transform = Matrix::new(4, 4);
+    let mut cstack = vec![Matrix::new(0,0); 0];
+    let mut top_cstack = Matrix::identity();
+    println!("{}", top_cstack);
     if args.len() > 1 && args[1] == "art" {
         parse_file(
             "macprowheels",
+            &mut cstack,
             &mut edges,
             &mut polygons,
-            &mut transform,
+            &mut top_cstack,
             &mut screen,
             color,
         );
     } else {
         parse_file(
             "script",
+            &mut cstack,
             &mut edges,
             &mut polygons,
-            &mut transform,
+            &mut top_cstack,
             &mut screen,
             color,
         );

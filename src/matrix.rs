@@ -1,6 +1,7 @@
 use std::fmt;
 use std::f32;
 
+#[derive(Clone)]
 pub struct Matrix{
     pub(in crate) matrix_array: Vec<Vec<f32>>,
 }
@@ -19,6 +20,8 @@ impl Matrix{
     /// 
     /// m1 * this object -> this object
     pub fn multiply_matrixes(&mut self, m1: &Matrix){
+        println!("{}", m1.matrix_array.len());
+        println!("{}", self.matrix_array[0].len());
         let mut matrix_result = Matrix::new(m1.matrix_array.len(), self.matrix_array[0].len());
         for result_i in 0..matrix_result.matrix_array.len(){
             for result_v in 0..matrix_result.matrix_array[result_i].len(){
@@ -31,16 +34,18 @@ impl Matrix{
         *self = matrix_result;
     }
     
-    pub fn identity(&mut self){
-        for i in 0..self.matrix_array.len(){
-            for v in 0..self.matrix_array[0].len(){
+    pub fn identity() -> Matrix{
+        let mut identityMatrix = Matrix::new(4,4);
+        for i in 0..identityMatrix.matrix_array.len(){
+            for v in 0..identityMatrix.matrix_array[0].len(){
                 if i == v{
-                    self.matrix_array[i][v] = 1.0;
+                    identityMatrix.matrix_array[i][v] = 1.0;
                 }else{
-                    self.matrix_array[i][v] = 0.0;
+                    identityMatrix.matrix_array[i][v] = 0.0;
                 }
             }
         }
+        return identityMatrix;
     }
     
     pub fn print_matrix(&self){
@@ -48,8 +53,7 @@ impl Matrix{
     }
     
     pub fn make_translate(x: i32, y: i32, z: i32) -> Matrix{
-        let mut matrix = Matrix::new(4, 4);
-        matrix.identity();
+        let mut matrix = Matrix::identity();
         matrix.matrix_array[0][3] = x as f32;
         matrix.matrix_array[1][3] = y as f32;
         matrix.matrix_array[2][3] = z as f32;
@@ -57,7 +61,7 @@ impl Matrix{
     }
     
     pub fn make_scale( x: f32, y: f32, z: f32) -> Matrix{
-        let mut matrix = Matrix::new(4, 4);
+        let mut matrix = Matrix::identity();
         matrix.matrix_array[0][0] = x as f32;
         matrix.matrix_array[1][1] = y as f32;
         matrix.matrix_array[2][2] = z as f32;
@@ -66,8 +70,7 @@ impl Matrix{
     }
     
     pub fn make_rot_x(mut theta: f32 ) -> Matrix{
-        let mut matrix = Matrix::new(4, 4);
-        matrix.identity();
+        let mut matrix = Matrix::identity();
         theta = theta.to_radians();
         matrix.matrix_array[1][1] = theta.cos();
         matrix.matrix_array[1][2] = theta.sin() * -1.0;
@@ -77,8 +80,7 @@ impl Matrix{
     }
     
     pub fn make_rot_y( mut theta: f32 ) -> Matrix{
-        let mut matrix = Matrix::new(4, 4);
-        matrix.identity();
+        let mut matrix = Matrix::identity();
         theta = theta.to_radians();
         matrix.matrix_array[0][0] = theta.cos();
         matrix.matrix_array[0][2] = theta.sin();
@@ -88,8 +90,7 @@ impl Matrix{
     }
     
     pub fn make_rot_z( mut theta: f32 ) -> Matrix{
-        let mut matrix = Matrix::new(4, 4);
-        matrix.identity();
+        let mut matrix = Matrix::identity();
         theta = theta.to_radians();
         matrix.matrix_array[0][0] = theta.cos();
         matrix.matrix_array[0][1] = theta.sin() * -1.0;

@@ -72,6 +72,7 @@ pub fn parse_file(
     cstack: &mut Vec<Matrix>,
     points: &mut Matrix,
     polygons: &mut Matrix,
+    currentCStackTop: &mut Matrix,
     screen: &mut Image,
     color: Color,
 ) -> io::Result<()> {
@@ -79,7 +80,6 @@ pub fn parse_file(
     let reader = BufReader::new(file);
     let mut doc_lines = vec![String::new(); 0];
     let mut i = 0;
-    let mut currentCStackTop = Matrix::new(0,0);
 
     for line in reader.lines() {
         doc_lines.push(line?);
@@ -297,7 +297,7 @@ pub fn parse_file(
                 *polygons = Matrix::new(0,0);
             }
             "push" =>{
-                cstack.push(currentCStackTop);
+                cstack.push(currentCStackTop.clone());
             }
             "pop" =>{
                 cstack.pop();
