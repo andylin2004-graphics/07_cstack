@@ -72,7 +72,6 @@ pub fn parse_file(
     cstack: &mut Vec<Matrix>,
     points: &mut Matrix,
     polygons: &mut Matrix,
-    transform: &mut Matrix,
     screen: &mut Image,
     color: Color,
 ) -> io::Result<()> {
@@ -80,6 +79,7 @@ pub fn parse_file(
     let reader = BufReader::new(file);
     let mut doc_lines = vec![String::new(); 0];
     let mut i = 0;
+    let mut currentCStackTop = Matrix::new(0,0);
 
     for line in reader.lines() {
         doc_lines.push(line?);
@@ -107,7 +107,7 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                transform.multiply_matrixes(&Matrix::make_scale(params[0], params[1], params[2]));
+                currentCStackTop.multiply_matrixes(&Matrix::make_scale(params[0], params[1], params[2]));
             }
             "translate" | "move" => {
                 i += 1;
@@ -116,7 +116,7 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                transform
+                currentCStackTop
                     .multiply_matrixes(&Matrix::make_translate(params[0], params[1], params[2]));
             }
             "rotate" => {
@@ -128,15 +128,15 @@ pub fn parse_file(
 
                 match params[0] {
                     "x" => {
-                        transform
+                        currentCStackTop
                             .multiply_matrixes(&Matrix::make_rot_x(params[1].parse().unwrap()));
                     }
                     "y" => {
-                        transform
+                        currentCStackTop
                             .multiply_matrixes(&Matrix::make_rot_y(params[1].parse().unwrap()));
                     }
                     "z" => {
-                        transform
+                        currentCStackTop
                             .multiply_matrixes(&Matrix::make_rot_z(params[1].parse().unwrap()));
                     }
                     _ => {
@@ -166,13 +166,13 @@ pub fn parse_file(
                 screen.display();
             }
             "save" => {
-                screen.clear();
-                if points.matrix_array.len() > 0 {
-                    screen.draw_lines(&points, color);
-                }
-                if polygons.matrix_array.len() > 0 {
-                    screen.draw_polygons(&polygons, color);
-                }
+                // screen.clear();
+                // if points.matrix_array.len() > 0 {
+                //     screen.draw_lines(&points, color);
+                // }
+                // if polygons.matrix_array.len() > 0 {
+                //     screen.draw_polygons(&polygons, color);
+                // }
                 i += 1;
                 screen.create_file(&*doc_lines[i]);
                 Command::new("magick")
@@ -267,6 +267,9 @@ pub fn parse_file(
                 }
 
                 polygons.add_torus(params[0], params[1], params[2], params[3], params[4], 20);
+            }
+            "push" =>{
+                cstack.push(currentCStackTop);
             }
             _ => {
                 panic!("Invalid command {} at line {}.", doc_lines[i], i + 1);
