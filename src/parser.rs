@@ -111,7 +111,9 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                cstack.last_mut().unwrap().multiply_matrixes(&Matrix::make_scale(params[0], params[1], params[2]));
+                let mut rot = Matrix::make_scale(params[0], params[1], params[2]);
+                rot.multiply_matrixes(&cstack.pop().unwrap());
+                cstack.push(rot);
             }
             "translate" | "move" => {
                 i += 1;
@@ -120,8 +122,9 @@ pub fn parse_file(
                     params.push(input.parse().unwrap());
                 }
 
-                cstack.last_mut().unwrap()
-                    .multiply_matrixes(&Matrix::make_translate(params[0], params[1], params[2]));
+                let mut rot = Matrix::make_translate(params[0], params[1], params[2]);
+                rot.multiply_matrixes(&cstack.pop().unwrap());
+                cstack.push(rot);
             }
             "rotate" => {
                 i += 1;
@@ -132,16 +135,19 @@ pub fn parse_file(
 
                 match params[0] {
                     "x" => {
-                        cstack.last_mut().unwrap()
-                            .multiply_matrixes(&Matrix::make_rot_x(params[1].parse().unwrap()));
+                        let mut rot = Matrix::make_rot_x(params[1].parse().unwrap());
+                        rot.multiply_matrixes(&cstack.pop().unwrap());
+                        cstack.push(rot);
                     }
                     "y" => {
-                        cstack.last_mut().unwrap()
-                            .multiply_matrixes(&Matrix::make_rot_y(params[1].parse().unwrap()));
+                        let mut rot = Matrix::make_rot_y(params[1].parse().unwrap());
+                        rot.multiply_matrixes(&cstack.pop().unwrap());
+                        cstack.push(rot);
                     }
                     "z" => {
-                        cstack.last_mut().unwrap()
-                            .multiply_matrixes(&Matrix::make_rot_z(params[1].parse().unwrap()));
+                        let mut rot = Matrix::make_rot_z(params[1].parse().unwrap());
+                        rot.multiply_matrixes(&cstack.pop().unwrap());
+                        cstack.push(rot);
                     }
                     _ => {
                         panic!(
@@ -297,7 +303,6 @@ pub fn parse_file(
                 *polygons = Matrix::new(0,0);
             }
             "push" =>{
-                // let last = cstack[cstack.len() - 1].clone();
                 cstack.push(cstack.last().unwrap().clone());
             }
             "pop" =>{
