@@ -1,0 +1,43 @@
+push
+rotate
+y 45
+scale
+1.25 1.25 1.25
+torus
+300 300 0 10 50
+box
+350 355 50 10 100 200
+box
+250 355 50 10 400 10
+push
+move
+50 50 0
+sphere
+0 0 0 30
+push
+move
+50 200 0
+sphere
+0 0 0 30
+push
+move
+90 130 0
+sphere
+0 0 0 30
+push
+move
+110 -80 0
+sphere
+0 0 0 30
+push
+move
+0 -100 0
+sphere
+0 0 0 30
+push
+move
+0 -150 0
+sphere
+0 0 0 30
+save
+basketball.png

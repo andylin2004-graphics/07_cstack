@@ -19,7 +19,7 @@ fn main() {
     let mut cstack = vec![Matrix::new(0,0); 0];
     if args.len() > 1 && args[1] == "art" {
         parse_file(
-            "macprowheels",
+            "basketball_script",
             &mut cstack,
             &mut edges,
             &mut polygons,
